@@ -28,12 +28,12 @@ export default function LayoutDetailProject({
             LinkComponent={Link}
             href={`/dashboard/${params.slug}`}
           />
-          <Tab
-            label="Members"
-            value={'members'}
-            LinkComponent={Link}
-            href={`/dashboard/${params.slug}/members`}
-          />
+          {/* <Tab */}
+          {/*   label="Members" */}
+          {/*   value={'members'} */}
+          {/*   LinkComponent={Link} */}
+          {/*   href={`/dashboard/${params.slug}/members`} */}
+          {/* /> */}
         </Tabs>
       )}
       {project}
