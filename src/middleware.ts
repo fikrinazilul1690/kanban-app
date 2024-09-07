@@ -23,6 +23,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (locks.has(cookie)) {
+      console.log('locked')
       return await new Promise((resolve) => {
         const interval = setInterval((res) => {
           if (!locks.has(cookie)) {
@@ -34,6 +35,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (!isValidSession(cookie)) {
+      console.log('locking')
       locks.set(cookie, true)
       try {
         const data = await refreshToken()
@@ -52,6 +54,7 @@ export default async function middleware(req: NextRequest) {
         deleteSession(response)
         return response
       } finally {
+        console.log('unlock')
         locks.delete(cookie)
       }
     }
