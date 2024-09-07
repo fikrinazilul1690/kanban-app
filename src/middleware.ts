@@ -22,19 +22,19 @@ export default async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard', req.nextUrl))
     }
 
+    if (locks.has(cookie)) {
+      return await new Promise((resolve) => {
+        const interval = setInterval((res) => {
+          if (!locks.has(cookie)) {
+            clearInterval(interval)
+            resolve(res) // Retry refresh logic
+          }
+        }, 99) // Check every 100ms
+      })
+    }
+
     if (!isValidSession(cookie)) {
       locks.set(cookie, true)
-      if (locks.has(cookie)) {
-        await new Promise((resolve) => {
-          const interval = setInterval((res) => {
-            if (!locks.has(cookie)) {
-              clearInterval(interval)
-              resolve(res) // Retry refresh logic
-            }
-          }, 100) // Check every 100ms
-        })
-        return setAuthorizationHeader(newHeaders, cookie)
-      }
       try {
         const data = await refreshToken()
         const response = setAuthorizationHeader(newHeaders, data.accessToken)
