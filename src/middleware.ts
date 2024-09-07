@@ -6,6 +6,8 @@ import {
   refreshToken,
 } from './lib/sessions'
 
+const locks = new Map()
+
 export default async function middleware(req: NextRequest) {
   const currPath = req.nextUrl.pathname
 
@@ -21,6 +23,18 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (!isValidSession(cookie)) {
+      locks.set(cookie, true)
+      if (locks.has(cookie)) {
+        await new Promise((resolve) => {
+          const interval = setInterval((res) => {
+            if (!locks.has(cookie)) {
+              clearInterval(interval)
+              resolve(res) // Retry refresh logic
+            }
+          }, 100) // Check every 100ms
+        })
+        return setAuthorizationHeader(newHeaders, cookie)
+      }
       try {
         const data = await refreshToken()
         const response = setAuthorizationHeader(newHeaders, data.accessToken)
@@ -37,6 +51,8 @@ export default async function middleware(req: NextRequest) {
         const response = NextResponse.redirect(signInUrl)
         deleteSession(response)
         return response
+      } finally {
+        locks.delete(cookie)
       }
     }
 
