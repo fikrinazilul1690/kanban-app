@@ -30,7 +30,7 @@ export default async function middleware(req: NextRequest) {
             clearInterval(interval)
             resolve(res) // Retry refresh logic
           }
-        }, 99) // Check every 100ms
+        }, 100) // Check every 100ms
       })
     }
 
